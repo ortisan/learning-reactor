@@ -45,7 +45,8 @@ class Operators {
         }
 
         fun groupByAndFlatMap(): Flux<NamesIndex>? {
-            return MonoFluxUtils.getNamesFlux().groupBy { name -> "${name[0]}" }.flatMap { g ->  g.collectList().map { NamesIndex(g.key(), it) }}
+            return MonoFluxUtils.getNamesFlux().groupBy { name -> "${name[0]}" }
+                .flatMap { g -> g.collectList().map { NamesIndex(g.key(), it) } }
         }
 
         fun onErrorResume(): Mono<String> {
@@ -64,10 +65,4 @@ class Operators {
             return Mono.fromCallable({ -> if (true) throw RuntimeException("Error") else "Test" })
         }
     }
-
-
-}
-
-fun main() {
-    Operators.groupByAndFlatMap()?.subscribe(System.out::println)
 }
