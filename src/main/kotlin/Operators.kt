@@ -1,7 +1,12 @@
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.util.context.Context
+import reactor.util.context.ContextView
 import utils.FunctionUtils
 import utils.MonoFluxUtils
+import java.time.Duration
+import java.util.*
+
 
 class Operators {
 
@@ -63,6 +68,25 @@ class Operators {
 
         fun onErrorError(): Mono<String> {
             return Mono.fromCallable({ -> if (true) throw RuntimeException("Error") else "Test" })
+        }
+
+        fun firstWithSignal(): Flux<String>? {
+            val a: Flux<String> = Flux.just("Hello").delaySubscription(Duration.ofMillis(450))
+            val b: Flux<String> = Flux.just("World").delaySubscription(Duration.ofMillis(400))
+            return Flux.firstWithSignal(a, b)
+        }
+
+        // https://github.com/reactor/reactor-core/blob/main/docs/asciidoc/advancedFeatures.adoc#context
+        fun withContext(): Mono<String>? {
+            val context = Context.of("trace_id", UUID.randomUUID().toString()).readOnly()
+            return MonoFluxUtils.getHelloMono()
+                .zipWith(MonoFluxUtils.getWorldMono(), FunctionUtils.concatLambdaFunction).flatMap {
+                    Mono.deferContextual({ ctx: ContextView ->
+                        val concatenationWithTraceInformation =
+                            "Trace Id: ${ctx.get<String>("trace_id")}, Message: ${it}"
+                        Mono.just(concatenationWithTraceInformation)
+                    })
+                }.contextWrite(context)
         }
     }
 }

@@ -12,7 +12,7 @@ internal class OperatorsTest {
             .create(collectList)
             .expectNext(mutableListOf("Ana", "Andre", "Augusto", "Marcelo", "Marcia", "Zeus"))
             .expectComplete()
-            .verify();
+            .verify()
 
     }
 
@@ -26,7 +26,7 @@ internal class OperatorsTest {
             .expectNext("Hello")
             .expectNext("World")
             .expectComplete()
-            .verify();
+            .verify()
 
     }
 
@@ -39,7 +39,7 @@ internal class OperatorsTest {
             .create(bufferFluxString)
             .expectNextMatches({ it.get(0) == "Hello" && it.get(1) == "World" })
             .expectComplete()
-            .verify();
+            .verify()
 
     }
 
@@ -52,7 +52,7 @@ internal class OperatorsTest {
             .create(flatMap)
             .expectNext("Hello, World")
             .expectComplete()
-            .verify();
+            .verify()
     }
 
     @Test
@@ -63,8 +63,7 @@ internal class OperatorsTest {
             .create(zipInline)
             .expectNext("Hello World")
             .expectComplete()
-            .verify();
-
+            .verify()
     }
 
     @Test
@@ -75,7 +74,7 @@ internal class OperatorsTest {
             .create(zipLambda)
             .expectNext("Hello World")
             .expectComplete()
-            .verify();
+            .verify()
 
     }
 
@@ -90,7 +89,7 @@ internal class OperatorsTest {
             .expectNext(namesIndex)
             .expectNextCount(2)
             .expectComplete()
-            .verify();
+            .verify()
     }
 
     @Test
@@ -103,7 +102,7 @@ internal class OperatorsTest {
             .expectNext("Initial: Z Names: Zeus")
             .expectNext("Initial: M Names: Marcelo Marcia")
             .expectComplete()
-            .verify();
+            .verify()
     }
 
     @Test
@@ -114,7 +113,7 @@ internal class OperatorsTest {
             .create(onErrorResume)
             .expectNext("Error occured. We must continue...")
             .expectComplete()
-            .verify();
+            .verify()
     }
 
     @Test
@@ -125,7 +124,7 @@ internal class OperatorsTest {
             .create(onErrorResumeRetry)
             .expectNext("Tried 2x, but error persists...")
             .expectComplete()
-            .verify();
+            .verify()
     }
 
     @Test
@@ -135,7 +134,28 @@ internal class OperatorsTest {
         StepVerifier
             .create(onError)
             .expectError()
-            .verify();
+            .verify()
+    }
+
+    @Test
+    fun testFirstWithSignal() {
+        val firstWithSignal = Operators.firstWithSignal()
+
+        StepVerifier
+            .create(firstWithSignal)
+            .expectNext("World")
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun testWithContext() {
+        val withContext = Operators.withContext()
+        StepVerifier
+            .create(withContext)
+            .expectNextMatches { message: String -> message.contains("Trace Id") }
+            .expectComplete()
+            .verify()
     }
 
 }
