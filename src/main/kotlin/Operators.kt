@@ -1,4 +1,5 @@
 import reactor.core.publisher.Flux
+import reactor.core.publisher.GroupedFlux
 import reactor.core.publisher.Mono
 import reactor.util.context.Context
 import reactor.util.context.ContextView
@@ -52,6 +53,10 @@ class Operators {
         fun groupByAndFlatMap(): Flux<NamesIndex>? {
             return MonoFluxUtils.getNamesFlux().groupBy { name -> "${name[0]}" }
                 .flatMap { g -> g.collectList().map { NamesIndex(g.key(), it) } }
+        }
+
+        fun collectMultimap(): Mono<MutableMap<String, MutableCollection<String>>>? {
+            return MonoFluxUtils.getNamesFlux().collectMultimap { name -> "${name[0]}" }
         }
 
         fun onErrorResume(): Mono<String> {

@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Test
+import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
 internal class OperatorsTest {
@@ -151,11 +152,24 @@ internal class OperatorsTest {
     @Test
     fun testWithContext() {
         val withContext = Operators.withContext()
+
         StepVerifier
             .create(withContext)
             .expectNextMatches { message: String -> message.contains("Trace Id") }
             .expectComplete()
             .verify()
     }
+
+    @Test
+    fun testWithCollectMultimap() {
+        val multimap = Operators.collectMultimap()?.log()
+
+        StepVerifier
+            .create(multimap)
+            .expectNextMatches { map -> map.containsKey("A") && map.get("A")!!.contains("Andre") }
+            .expectComplete()
+            .verify()
+    }
+
 
 }
